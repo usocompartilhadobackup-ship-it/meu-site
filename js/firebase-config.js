@@ -12,7 +12,7 @@ const db  = firebase.firestore();
 const auth = firebase.auth();
 
 const ADMIN_EMAIL = 'emersonhconde@icloud.com';
-const API_KEY     = 'AIzaSyCkpYP6jtM9ToTkjcKr9uP6bY8tKnxbHTc';
+const API_KEY     = firebaseConfig.apiKey;
 
 const DEFAULT_STATE = {
   workouts:[], completedDays:[], totalWorkouts:0, totalMinutes:0,
