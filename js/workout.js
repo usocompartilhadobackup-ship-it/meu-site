@@ -15,7 +15,7 @@ function renderActiveExercises(){
   activeWorkout.exercises.forEach(eid => {
     const ex      = EXERCISES_DB.find(e => e.id === eid); if(!ex) return;
     const checked = activeChecked.has(eid);
-    const hist    = state.loadHistory[eid];
+    const hist    = getLastRecord(eid);
     const item    = document.createElement('div');
     item.className = 'exercise-item';
     item.style.opacity = checked ? '.45' : '1';
@@ -46,10 +46,7 @@ function renderActiveExercises(){
 function saveActiveLoad(eid){
   const w = document.getElementById('w-' + eid)?.value;
   const r = document.getElementById('r-' + eid)?.value;
-  if(w || r){
-    state.loadHistory[eid] = { weight:w||0, reps:r||0, date:new Date().toISOString().split('T')[0] };
-    save();
-  }
+  if(w || r) addLoadRecord(eid, w || 0, r || 0);
 }
 
 function toggleCheck(eid){

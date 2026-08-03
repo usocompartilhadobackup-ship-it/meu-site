@@ -330,6 +330,15 @@ select.form-input{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://
 .load-history{background:rgba(13,10,26,.8);border-radius:8px;padding:10px 12px;margin-top:6px;font-size:12px;color:var(--muted)}
 .load-history span{color:var(--accent2);font-weight:700}
 
+/* EXERCISE EVOLUTION */
+.evo-delta{margin-top:12px;padding-top:12px;border-top:1px solid var(--border);font-size:13px;font-weight:700;color:var(--muted);text-align:center}
+.evo-delta.up{color:var(--success)}
+.evo-delta.down{color:var(--danger,#ff6b6b)}
+.evo-history-list{display:flex;flex-direction:column;gap:6px}
+.evo-history-row{display:flex;align-items:center;justify-content:space-between;background:rgba(19,16,34,.7);border:1px solid var(--border);border-radius:10px;padding:10px 14px;font-size:13px}
+.evo-history-row .evo-date{color:var(--muted)}
+.evo-history-row .evo-load{font-weight:700;color:var(--text)}
+
 /* GROUPED EXERCISE PICKER */
 .picker-group{margin-bottom:10px;border:1px solid var(--border);border-radius:14px;overflow:hidden;background:rgba(19,16,34,.7);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
 .picker-group-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;cursor:pointer}

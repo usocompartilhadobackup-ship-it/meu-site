@@ -120,3 +120,28 @@ function save(){
   localStorage.setItem('gymflow_v3', JSON.stringify(state));
   saveToCloud(state);
 }
+
+// ==================== LOAD HISTORY (per-exercise progress) ====================
+// state.loadHistory[eid] is an array of {weight, reps, date}, one entry per day.
+// Older saves stored a single {weight,reps,date} object — getHistoryArr migrates that on read.
+function getHistoryArr(eid){
+  const h = state.loadHistory[eid];
+  if(!h) return [];
+  return Array.isArray(h) ? h : [h];
+}
+
+function getLastRecord(eid){
+  const arr = getHistoryArr(eid);
+  if(!arr.length) return null;
+  return [...arr].sort((a,b) => a.date.localeCompare(b.date)).pop();
+}
+
+function addLoadRecord(eid, weight, reps){
+  const arr   = getHistoryArr(eid).slice();
+  const today = new Date().toISOString().split('T')[0];
+  const idx   = arr.findIndex(r => r.date === today);
+  const rec   = { weight: weight || 0, reps: reps || 0, date: today };
+  if(idx >= 0) arr[idx] = rec; else arr.push(rec);
+  state.loadHistory[eid] = arr;
+  save();
+}

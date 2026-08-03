@@ -1,4 +1,4 @@
-const CACHE_NAME = 'gymflow-v2';
+const CACHE_NAME = 'gymflow-v3';
 const APP_SHELL = [
   './index.html',
   './manifest.json',
