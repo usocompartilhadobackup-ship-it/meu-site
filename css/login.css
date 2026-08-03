@@ -1,5 +1,11 @@
 /* LOGIN SCREEN */
-#login-screen{position:fixed;inset:0;z-index:1000;background:#000008;display:none;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;gap:0}
+#login-screen{position:fixed;inset:0;z-index:1000;display:none;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;gap:0;
+  background-color:#000008;
+  background-image:radial-gradient(ellipse at 50% 30%,rgba(0,0,8,.15),rgba(0,0,8,.94) 72%),url('../img/watercolor-login.svg');
+  background-size:cover,cover;
+  background-position:center,center 15%;
+  background-repeat:no-repeat,no-repeat;
+  background-blend-mode:normal,screen}
 #login-screen .ll{width:64px;height:64px;border-radius:50%;background:radial-gradient(circle,#fff8e0 0%,#c88820 40%,#7a4a08 75%,transparent 100%);margin:0 auto 14px;box-shadow:0 0 40px #c8882055,0 0 80px #c8882022}
 #login-screen h1{font-family:var(--font-display,'Space Grotesk',sans-serif);font-size:28px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#c0b898;margin-bottom:4px;text-align:center}
 #login-screen h1 span{color:#e8a835}

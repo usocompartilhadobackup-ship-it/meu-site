@@ -20,7 +20,10 @@ function renderActiveExercises(){
     item.className = 'exercise-item';
     item.style.opacity = checked ? '.45' : '1';
     item.innerHTML = `
-      ${makeThumb(ex.img, ex.icon, 52)}
+      <div class="ex-thumb-expandable" onclick="openGifLightbox('${ex.img}','${ex.name.replace(/'/g,"\\'")}')">
+        ${makeThumb(ex.img, ex.icon, 52)}
+        <div class="ex-thumb-expand-badge"><svg viewBox="0 0 24 24"><path d="M9 4H4v5M15 4h5v5M9 20H4v-5M15 20h5v-5"/></svg></div>
+      </div>
       <div class="ex-info" style="flex:1">
         <h5>${ex.name}</h5>
         <p>${ex.sets} • ${ex.rest}s descanso</p>

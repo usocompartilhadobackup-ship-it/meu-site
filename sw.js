@@ -16,6 +16,10 @@ const APP_SHELL = [
   './js/settings.js',
   './js/auth.js',
   './img/bg-eclipse.webp',
+  './img/watercolor-login.svg',
+  './img/watercolor-blob-a.svg',
+  './img/watercolor-blob-b.svg',
+  './img/watercolor-blob-c.svg',
   './img/icons/icon-192.png',
   './img/icons/icon-512.png'
 ];

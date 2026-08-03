@@ -29,7 +29,23 @@ document.addEventListener('keydown', e => {
   document.querySelectorAll('.modal-overlay.open').forEach(m => m.classList.remove('open'));
   const rest = document.getElementById('rest-overlay');
   if(rest) rest.classList.remove('open');
+  closeGifLightbox();
 });
+
+// ==================== GIF FULLSCREEN LIGHTBOX ====================
+function openGifLightbox(slug, name){
+  const img = document.getElementById('gif-lightbox-img');
+  img.src = imgSrc(slug);
+  img.onerror = function(){
+    if(this.src.endsWith('.gif')) this.src = this.src.replace('.gif', '.svg');
+  };
+  document.getElementById('gif-lightbox-caption').textContent = name || '';
+  document.getElementById('gif-lightbox').classList.add('open');
+}
+
+function closeGifLightbox(){
+  document.getElementById('gif-lightbox').classList.remove('open');
+}
 
 // ==================== TOAST ====================
 function showToast(msg){
