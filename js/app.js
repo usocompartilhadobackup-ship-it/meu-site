@@ -3,6 +3,15 @@ if('serviceWorker' in navigator){
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('sw.js').catch(e => console.warn('SW register failed:', e));
   });
+
+  // When a new service worker takes over (new version deployed), reload once
+  // so the tab picks up the fresh HTML/JS instead of running stale code.
+  let swRefreshing = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if(swRefreshing) return;
+    swRefreshing = true;
+    window.location.reload();
+  });
 }
 
 // ==================== NAV ====================
