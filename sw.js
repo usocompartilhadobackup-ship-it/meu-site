@@ -1,10 +1,11 @@
-const CACHE_NAME = 'gymflow-v4';
+const CACHE_NAME = 'gymflow-v5';
 const FIREBASE_VERSION = '9.23.0';
 const APP_SHELL = [
   './index.html',
   './manifest.json',
   './css/styles.css',
   './css/login.css',
+  './css/cosmos.css',
   './js/firebase-config.js',
   './js/utils.js',
   './js/data.js',
@@ -18,11 +19,12 @@ const APP_SHELL = [
   './js/settings.js',
   './js/auth.js',
   './js/background.js',
+  './js/black-hole.js',
   './img/bg-eclipse.webp',
-  './img/watercolor-login.svg',
-  './img/watercolor-blob-a.svg',
-  './img/watercolor-blob-b.svg',
-  './img/watercolor-blob-c.svg',
+  './img/space-helix.webp',
+  './img/space-pillars.webp',
+  './img/space-sombrero.webp',
+  './img/space-spiral.webp',
   './img/icons/icon-192.png',
   './img/icons/icon-512.png',
   ...['app', 'firestore', 'auth'].map(m =>

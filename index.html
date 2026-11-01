@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="GymFlow">
-<meta name="theme-color" content="#05070d">
+<meta name="theme-color" content="#03040a">
 <meta name="description" content="Planeje seus treinos, registre cada série e acompanhe sua evolução.">
 <title>GymFlow</title>
 <link rel="manifest" href="manifest.json">
@@ -14,9 +14,10 @@
 <link rel="apple-touch-icon" href="img/icons/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;800&family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/styles.css">
 <link rel="stylesheet" href="css/login.css">
+<link rel="stylesheet" href="css/cosmos.css">
 <script defer src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script defer src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script defer src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
@@ -33,8 +34,9 @@
 <script defer src="js/settings.js"></script>
 <script defer src="js/auth.js"></script>
 <script defer src="js/background.js"></script>
+<script defer src="js/black-hole.js"></script>
 </head>
-<body>
+<body data-space="home">
 
 <!-- ÍCONES -->
 <svg width="0" height="0" class="sprite" aria-hidden="true">
@@ -73,7 +75,7 @@
 
 <!-- LOGIN -->
 <div id="login-screen">
-  <div class="brand-orb" aria-hidden="true"></div>
+  <canvas class="black-hole-splash" data-black-hole aria-hidden="true"></canvas>
   <h1 class="brand-title"><span>Gym</span>Flow</h1>
   <p class="brand-tagline">Seu treino. Sua evolução.</p>
 
@@ -131,7 +133,7 @@
 
 <!-- SPLASH -->
 <div id="splash" role="status" aria-label="Carregando">
-  <div class="brand-orb brand-orb-pulse" aria-hidden="true"></div>
+  <canvas class="black-hole-splash" data-black-hole aria-hidden="true"></canvas>
   <p class="brand-title"><span>Gym</span>Flow</p>
 </div>
 
@@ -145,20 +147,28 @@
         <div class="sync-status" id="sync-status" role="status"></div>
       </header>
 
+      <div class="hero">
+        <canvas data-black-hole aria-hidden="true"></canvas>
+        <div class="rank-panel">
+          <div class="rank-head"><span>Patente <strong class="rank-name" id="rank-name"></strong></span><span id="rank-next"></span></div>
+          <div class="progress-track"><div class="progress-fill" id="rank-fill"></div></div>
+        </div>
+      </div>
+
       <div class="today-card">
-        <p class="card-label">Treino de hoje</p>
+        <p class="card-label">Missão de hoje</p>
         <h2 class="workout-name" id="today-name"></h2>
         <p class="workout-meta" id="today-meta"></p>
         <button type="button" class="btn-primary" id="today-cta" data-action="todayCta"></button>
       </div>
 
       <div class="section-header">
-        <h2 class="section-title">Semana</h2>
+        <h2 class="section-title">Órbita da semana</h2>
         <p class="streak-chip" id="streak-chip"></p>
       </div>
       <ul class="week-grid" id="week-grid"></ul>
 
-      <h2 class="section-title">Resumo</h2>
+      <h2 class="section-title">Telemetria</h2>
       <div class="stats-grid">
         <div class="stat-card"><svg class="icon" aria-hidden="true"><use href="#i-calendar"></use></svg><p class="stat-value" id="stat-week">0</p><p class="stat-label">treinos na semana</p></div>
         <div class="stat-card"><svg class="icon" aria-hidden="true"><use href="#i-target"></use></svg><p class="stat-value" id="stat-sets">0</p><p class="stat-label">séries hoje</p></div>
@@ -169,8 +179,8 @@
 
     <section class="screen" id="screen-plan" aria-labelledby="plan-title">
       <header class="page-header">
-        <p class="eyebrow">Organização</p>
-        <h1 id="plan-title">Plano semanal</h1>
+        <p class="eyebrow">Setor · Galáxia espiral</p>
+        <h1 id="plan-title">Plano de voo</h1>
       </header>
       <div class="day-selector" id="day-selector"></div>
       <div id="plan-content"></div>
@@ -178,7 +188,7 @@
 
     <section class="screen" id="screen-exs" aria-labelledby="exs-title">
       <header class="page-header">
-        <p class="eyebrow">Biblioteca</p>
+        <p class="eyebrow">Messier 16 · Pilares da Criação</p>
         <h1 id="exs-title">Exercícios</h1>
       </header>
       <div class="search-bar">
@@ -191,7 +201,7 @@
 
     <section class="screen" id="screen-progress" aria-labelledby="progress-title">
       <header class="page-header">
-        <p class="eyebrow">Evolução</p>
+        <p class="eyebrow">NGC 7293 · Nebulosa da Hélice</p>
         <h1 id="progress-title">Progresso</h1>
       </header>
       <div class="stats-grid">
@@ -210,7 +220,7 @@
 
     <section class="screen" id="screen-settings" aria-labelledby="settings-title">
       <header class="page-header">
-        <p class="eyebrow">Configurações</p>
+        <p class="eyebrow">Messier 104 · Galáxia do Sombreiro</p>
         <h1 id="settings-title">Ajustes</h1>
       </header>
 
@@ -328,7 +338,7 @@
     </div>
     <div class="modal-body" id="active-exercises"></div>
     <div class="modal-footer">
-      <button type="button" class="btn-primary" data-action="finishWorkout"><svg class="icon" aria-hidden="true"><use href="#i-check"></use></svg>Finalizar treino</button>
+      <button type="button" class="btn-primary" data-action="finishWorkout"><svg class="icon" aria-hidden="true"><use href="#i-check"></use></svg>Finalizar missão</button>
     </div>
   </div>
 </div>
@@ -381,6 +391,7 @@
     </div>
   </div>
   <p class="rest-sub" id="rest-next-ex"></p>
+  <p class="rest-note">Perto de Gargantua, 1 hora custa 7 anos. Aqui, só esse descanso.</p>
   <div class="rest-btns">
     <button type="button" class="btn-secondary" data-action="addRestTime">+15s</button>
     <button type="button" class="btn-primary" data-action="skipRest">Pular descanso</button>

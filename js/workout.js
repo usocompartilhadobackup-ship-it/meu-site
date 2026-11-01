@@ -171,7 +171,7 @@ ACTIONS.finishWorkout = async () => {
   const { done } = countSets();
   if(done === 0){
     const confirmed = await confirmDialog({
-      title: 'Finalizar sem séries?',
+      title: 'Encerrar sem séries?',
       message: 'Nenhuma série foi marcada como concluída. O treino contará mesmo assim.',
       confirmLabel: 'Finalizar'
     });
@@ -189,7 +189,7 @@ ACTIONS.finishWorkout = async () => {
   closeModal('active-modal');
   initHome();
   initProgress();
-  showToast('Treino concluído. Bom trabalho!');
+  showToast('Missão concluída. Do not go gentle.');
 };
 
 // ── Descanso ────────────────────────────────────────────────────────────

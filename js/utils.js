@@ -46,6 +46,23 @@ function computeStreak(completedDays, today = new Date()){
   return streak;
 }
 
+// ── Patentes: cada treino concluído aproxima da próxima ───────────────
+const RANKS = [
+  { name: 'Cadete', from: 0 },
+  { name: 'Piloto', from: 10 },
+  { name: 'Navegador', from: 25 },
+  { name: 'Comandante', from: 50 },
+  { name: 'Explorador', from: 100 },
+  { name: 'Lenda de Gargantua', from: 200 }
+];
+
+function rankFor(totalWorkouts){
+  const index = RANKS.reduce((found, rank, i) => totalWorkouts >= rank.from ? i : found, 0);
+  const current = RANKS[index], next = RANKS[index + 1] || null;
+  const progress = next ? (totalWorkouts - current.from) / (next.from - current.from) : 1;
+  return { name: current.name, next: next ? next.name : null, remaining: next ? next.from - totalWorkouts : 0, progress };
+}
+
 function formatClock(totalSeconds){
   const safe = Math.max(0, totalSeconds);
   return String(Math.floor(safe / 60)).padStart(2, '0') + ':' + String(safe % 60).padStart(2, '0');

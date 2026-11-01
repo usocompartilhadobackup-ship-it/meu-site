@@ -61,6 +61,7 @@ ACTIONS.goScreen = (btn) => {
   document.getElementById('screen-' + id).classList.add('active');
   if(SCREEN_INIT[id]) SCREEN_INIT[id]();
   window.scrollTo(0, 0);
+  travelTo(id);
 };
 
 // ==================== MODAIS ====================

@@ -8,8 +8,8 @@ const vm = require('node:vm');
 const context = {};
 vm.createContext(context);
 const source = fs.readFileSync(path.join(__dirname, '../js/utils.js'), 'utf8');
-vm.runInContext(source + `;Object.assign(globalThis,{escapeHtml,toDateKey,parseDateKey,mondayIndex,weekDateKeys,computeStreak,formatClock,parseSetScheme,bestSet,mergeStates,normalizeHistory});`, context);
-const { escapeHtml, toDateKey, parseDateKey, mondayIndex, weekDateKeys, computeStreak, formatClock, parseSetScheme, bestSet, mergeStates, normalizeHistory } = context;
+vm.runInContext(source + `;Object.assign(globalThis,{rankFor,escapeHtml,toDateKey,parseDateKey,mondayIndex,weekDateKeys,computeStreak,formatClock,parseSetScheme,bestSet,mergeStates,normalizeHistory});`, context);
+const { rankFor, escapeHtml, toDateKey, parseDateKey, mondayIndex, weekDateKeys, computeStreak, formatClock, parseSetScheme, bestSet, mergeStates, normalizeHistory } = context;
 const plain = value => JSON.parse(JSON.stringify(value));
 
 test('escapeHtml neutraliza marcação', () => {
@@ -47,6 +47,17 @@ test('formatClock e parseSetScheme', () => {
 
 test('bestSet escolhe a maior carga', () => {
   assert.strictEqual(bestSet([{ weight: 40, reps: 10 }, { weight: '60', reps: 8 }, { weight: 50, reps: 9 }]).reps, 8);
+});
+
+test('rankFor calcula patente e progresso', () => {
+  assert.strictEqual(rankFor(0).name, 'Cadete');
+  assert.strictEqual(rankFor(9).remaining, 1);
+  assert.strictEqual(rankFor(10).name, 'Piloto');
+  assert.strictEqual(rankFor(17).progress, 7 / 15);
+  const top = rankFor(500);
+  assert.strictEqual(top.name, 'Lenda de Gargantua');
+  assert.strictEqual(top.next, null);
+  assert.strictEqual(top.progress, 1);
 });
 
 test('normalizeHistory aceita o formato antigo', () => {

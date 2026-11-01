@@ -21,6 +21,8 @@ Ao alterar arquivos do app, aumente `CACHE_NAME` em `sw.js` para os celulares re
 | `js/storage.js` | Cópia local por usuário e sincronização com a nuvem |
 | `js/data.js` | Catálogo de exercícios e histórico de cargas |
 | `js/app.js` | Ações (`data-action`), modais e toast |
+| `js/background.js`, `js/black-hole.js` | Campo estelar, viagem entre telas e buraco negro animado |
+| `css/styles.css`, `css/cosmos.css` | Componentes e tema "Missão GymFlow" |
 | `js/home.js`, `planner.js`, `exercises.js`, `workout.js`, `progress.js`, `settings.js`, `auth.js` | Telas |
 
 ## Segurança

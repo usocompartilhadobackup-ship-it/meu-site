@@ -2,15 +2,24 @@
 const WEEKDAY_SHORT = ['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'];
 const WEEKDAY_LONG  = ['Segunda','Terça','Quarta','Quinta','Sexta','Sábado','Domingo'];
 
-function initHome(){ renderHeader(); renderTodayCard(); renderWeekGrid(); renderStats(); }
+function initHome(){ renderHeader(); renderRank(); renderTodayCard(); renderWeekGrid(); renderStats(); }
 
 function plural(count, singular, pluralForm){ return count === 1 ? singular : pluralForm; }
 
 function renderHeader(){
   const name = (auth.currentUser && auth.currentUser.displayName || '').split(' ')[0];
-  document.getElementById('home-title').textContent = name ? `Olá, ${name}!` : 'Olá!';
+  document.getElementById('home-title').textContent = name ? `A bordo, ${name}` : 'A bordo';
   document.getElementById('home-date').textContent =
     new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' });
+}
+
+function renderRank(){
+  const rank = rankFor(state.totalWorkouts);
+  document.getElementById('rank-name').textContent = rank.name;
+  document.getElementById('rank-next').textContent = rank.next
+    ? `${rank.remaining} até ${rank.next}`
+    : 'Patente máxima';
+  document.getElementById('rank-fill').style.width = Math.round(rank.progress * 100) + '%';
 }
 
 function renderWeekGrid(){
@@ -37,11 +46,11 @@ function renderTodayCard(){
     const inProgress = activeSession && activeSession.workout.day === workout.day;
     name.textContent = workout.name;
     meta.textContent = `${count} ${plural(count, 'exercício', 'exercícios')}`;
-    cta.innerHTML = icon('play') + (inProgress ? 'Continuar treino' : 'Iniciar treino');
+    cta.innerHTML = icon('play') + (inProgress ? 'Continuar missão' : 'Iniciar missão');
     cta.className = 'btn-primary';
   } else {
-    name.textContent = 'Dia de descanso';
-    meta.textContent = 'Nenhum treino planejado para hoje';
+    name.textContent = 'Recarga dos propulsores';
+    meta.textContent = 'Dia de descanso: nenhum treino planejado';
     cta.innerHTML = icon('calendar') + 'Planejar treino';
     cta.className = 'btn-secondary btn-block';
   }
@@ -68,5 +77,5 @@ function renderStats(){
   document.getElementById('stat-min').textContent   = state.totalMinutes;
   const streak = computeStreak(state.completedDays);
   document.getElementById('streak-chip').innerHTML =
-    icon('flame') + `${streak} ${plural(streak, 'dia seguido', 'dias seguidos')}`;
+    icon('flame') + `${streak} ${plural(streak, 'dia em órbita', 'dias em órbita')}`;
 }
