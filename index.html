@@ -6,7 +6,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="GymFlow">
-<meta name="theme-color" content="#000008">
+<meta name="theme-color" content="#05070d">
+<meta name="description" content="Planeje seus treinos, registre cada série e acompanhe sua evolução.">
 <title>GymFlow</title>
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="img/icons/icon-192.png">
@@ -16,382 +17,383 @@
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/styles.css">
 <link rel="stylesheet" href="css/login.css">
-<!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script defer src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script defer src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script defer src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script defer src="js/firebase-config.js"></script>
+<script defer src="js/utils.js"></script>
+<script defer src="js/data.js"></script>
+<script defer src="js/storage.js"></script>
+<script defer src="js/app.js"></script>
+<script defer src="js/home.js"></script>
+<script defer src="js/planner.js"></script>
+<script defer src="js/exercises.js"></script>
+<script defer src="js/workout.js"></script>
+<script defer src="js/progress.js"></script>
+<script defer src="js/settings.js"></script>
+<script defer src="js/auth.js"></script>
+<script defer src="js/background.js"></script>
 </head>
 <body>
 
-<!-- ══════════════════════════════════════════
-     LOGIN SCREEN
-═══════════════════════════════════════════ -->
+<!-- ÍCONES -->
+<svg width="0" height="0" class="sprite" aria-hidden="true">
+  <defs>
+    <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v9a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1v-9"/></symbol>
+    <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="16" rx="2.5"/><path d="M3.5 9.5h17M8 3v3M16 3v3"/></symbol>
+    <symbol id="i-dumbbell" viewBox="0 0 24 24"><path d="M2.5 10.5v3M21.5 10.5v3M7.5 12h9"/><rect x="4.5" y="6.5" width="3" height="11" rx="1"/><rect x="16.5" y="6.5" width="3" height="11" rx="1"/></symbol>
+    <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 20V10M12 20V4M20 20v-7"/></symbol>
+    <symbol id="i-settings" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M12 3v2.2M12 18.8V21M21 12h-2.2M5.2 12H3M18.4 5.6l-1.5 1.5M7.1 16.9l-1.5 1.5M18.4 18.4l-1.5-1.5M7.1 7.1 5.6 5.6"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="M7 4.5v15l12-7.5z"/></symbol>
+    <symbol id="i-pause" viewBox="0 0 24 24"><path d="M8 5v14M16 5v14"/></symbol>
+    <symbol id="i-reset" viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.5-5.8L4 8.5"/><path d="M4 4v4.5h4.5"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
+    <symbol id="i-edit" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="m13.5 6.5 4 4"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M9.5 7V4.5h5V7M6.5 7l1 13h9l1-13M10 11v5M14 11v5"/></symbol>
+    <symbol id="i-flame" viewBox="0 0 24 24"><path d="M12 3c1 4 5 5.5 5 11a5 5 0 0 1-10 0c0-2 1-3.5 2-4.5.3 1.5 1 2.2 2 2.5-.5-3 0-6.5 1-9z"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3.5 2"/></symbol>
+    <symbol id="i-trophy" viewBox="0 0 24 24"><path d="M7.5 4h9v6a4.5 4.5 0 0 1-9 0zM7.5 6H4v1.5A3.5 3.5 0 0 0 7.5 11M16.5 6H20v1.5a3.5 3.5 0 0 1-3.5 3.5M12 14.5V18M8 20.5h8M9.5 18h5"/></symbol>
+    <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r=".6"/></symbol>
+    <symbol id="i-expand" viewBox="0 0 24 24"><path d="M9 4H4v5M15 4h5v5M9 20H4v-5M15 20h5v-5"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></symbol>
+    <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+    <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 2h-15zM10 21h4"/></symbol>
+    <symbol id="i-crown" viewBox="0 0 24 24"><path d="m3.5 8 4.5 4 4-7 4 7 4.5-4-2 10.5h-13z"/></symbol>
+    <symbol id="i-cloud" viewBox="0 0 24 24"><path d="M7 18.5a4.5 4.5 0 0 1-.5-9 6 6 0 0 1 11.5 1.5 3.8 3.8 0 0 1-.5 7.5z"/></symbol>
+    <symbol id="i-cloud-off" viewBox="0 0 24 24"><path d="M3.5 3.5l17 17M9 6.3A6 6 0 0 1 18 11a3.8 3.8 0 0 1 2 6.2M16.5 18.5H7a4.5 4.5 0 0 1-1.5-8.7"/></symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24"><path d="M19.5 14.5A8 8 0 0 1 9.5 4.5a8 8 0 1 0 10 10z"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="2.8"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5.5M12 7.5v.5"/></symbol>
+    <symbol id="i-logout" viewBox="0 0 24 24"><path d="M10 4H5v16h5M15 8l4 4-4 4M19 12H9"/></symbol>
+  </defs>
+</svg>
+
+<!-- LOGIN -->
 <div id="login-screen">
-  <div class="ll"></div>
-  <h1><span>Gym</span>Flow</h1>
-  <p class="ls">✦ &nbsp; do not go gentle &nbsp; ✦</p>
-  <div class="lcard">
-    <div class="lt">Entrar</div>
-    <div class="ld">Acesse sua conta para continuar</div>
-    <div class="lerr" id="login-error"></div>
-    <div class="form-group">
-      <label class="form-label">E-mail</label>
-      <input class="form-input" type="email" id="login-email" placeholder="seu@email.com"
-        inputmode="email" autocomplete="email"
-        onkeydown="if(event.key==='Enter')document.getElementById('login-password').focus()">
-    </div>
-    <div class="form-group">
-      <label class="form-label">Senha</label>
-      <input class="form-input" type="password" id="login-password" placeholder="••••••••"
-        autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
-    </div>
-    <button class="btn-primary" id="login-btn" onclick="doLogin()">Entrar</button>
-    <div class="lswitch">Não tem conta? <a onclick="showRegister()">Cadastrar-se</a></div>
-  </div>
+  <div class="brand-orb" aria-hidden="true"></div>
+  <h1 class="brand-title"><span>Gym</span>Flow</h1>
+  <p class="brand-tagline">Seu treino. Sua evolução.</p>
 
-  <!-- REGISTER CARD -->
-  <div class="lcard" id="register-card" style="display:none;margin-top:16px">
-    <div class="lt">Criar Conta</div>
-    <div class="ld">Junte-se ao GymFlow</div>
-    <div class="lerr" id="register-error"></div>
+  <form class="lcard" id="login-card" data-submit="doLogin" novalidate>
+    <h2 class="lcard-title">Entrar</h2>
+    <p class="lcard-desc">Acesse sua conta para continuar</p>
+    <div class="form-error" id="login-error" role="alert"></div>
     <div class="form-group">
-      <label class="form-label">Nome</label>
-      <input class="form-input" type="text" id="register-name" placeholder="Seu nome"
-        autocomplete="name"
-        onkeydown="if(event.key==='Enter')document.getElementById('register-email').focus()">
+      <label class="form-label" for="login-email">E-mail</label>
+      <input class="form-input" type="email" id="login-email" placeholder="seu@email.com" autocomplete="email" required>
     </div>
     <div class="form-group">
-      <label class="form-label">E-mail</label>
-      <input class="form-input" type="email" id="register-email" placeholder="seu@email.com"
-        inputmode="email" autocomplete="email"
-        onkeydown="if(event.key==='Enter')document.getElementById('register-password').focus()">
+      <label class="form-label" for="login-password">Senha</label>
+      <div class="password-field">
+        <input class="form-input" type="password" id="login-password" autocomplete="current-password" required>
+        <button type="button" class="icon-btn" data-action="togglePassword" data-target="login-password" aria-label="Mostrar senha"><svg class="icon" aria-hidden="true"><use href="#i-eye"></use></svg></button>
+      </div>
+    </div>
+    <button type="submit" class="btn-primary" id="login-btn">Entrar</button>
+    <p class="lswitch">Não tem conta? <button type="button" class="link-btn" data-action="showRegister">Cadastrar-se</button></p>
+  </form>
+
+  <form class="lcard" id="register-card" data-submit="doRegister" novalidate hidden>
+    <h2 class="lcard-title">Criar conta</h2>
+    <p class="lcard-desc">Comece a registrar sua evolução</p>
+    <div class="form-error" id="register-error" role="alert"></div>
+    <div class="form-group">
+      <label class="form-label" for="register-name">Nome</label>
+      <input class="form-input" type="text" id="register-name" autocomplete="name" maxlength="60" required>
     </div>
     <div class="form-group">
-      <label class="form-label">Senha</label>
-      <input class="form-input" type="password" id="register-password" placeholder="••••••••"
-        autocomplete="new-password"
-        onkeydown="if(event.key==='Enter')document.getElementById('register-confirm').focus()">
+      <label class="form-label" for="register-email">E-mail</label>
+      <input class="form-input" type="email" id="register-email" placeholder="seu@email.com" autocomplete="email" required>
     </div>
     <div class="form-group">
-      <label class="form-label">Confirmar Senha</label>
-      <input class="form-input" type="password" id="register-confirm" placeholder="••••••••"
-        autocomplete="new-password" onkeydown="if(event.key==='Enter')doRegister()">
+      <label class="form-label" for="register-password">Senha</label>
+      <div class="password-field">
+        <input class="form-input" type="password" id="register-password" autocomplete="new-password" aria-describedby="register-password-help" required>
+        <button type="button" class="icon-btn" data-action="togglePassword" data-target="register-password" aria-label="Mostrar senha"><svg class="icon" aria-hidden="true"><use href="#i-eye"></use></svg></button>
+      </div>
+      <p class="form-help" id="register-password-help">Mínimo de 8 caracteres</p>
     </div>
-    <button class="btn-primary" id="register-btn" onclick="doRegister()">Criar Conta</button>
-    <div class="lswitch">Já tem conta? <a onclick="showLogin()">Entrar</a></div>
-  </div>
+    <div class="form-group">
+      <label class="form-label" for="register-confirm">Confirmar senha</label>
+      <input class="form-input" type="password" id="register-confirm" autocomplete="new-password" required>
+    </div>
+    <button type="submit" class="btn-primary" id="register-btn">Criar conta</button>
+    <p class="lswitch">Já tem conta? <button type="button" class="link-btn" data-action="showLogin">Entrar</button></p>
+  </form>
 </div>
 
-<!-- ══════════════════════════════════════════
-     BACKGROUND
-═══════════════════════════════════════════ -->
-<div id="bg-photo"></div>
-<canvas id="galaxy-canvas"></canvas>
-<div class="idust id1"></div>
-<div class="idust id2"></div>
-<div class="idust id3"></div>
+<!-- FUNDO -->
+<div id="bg-photo" aria-hidden="true"></div>
+<canvas id="galaxy-canvas" aria-hidden="true"></canvas>
 
-<!-- ══════════════════════════════════════════
-     SPLASH
-═══════════════════════════════════════════ -->
-<div id="splash">
-  <canvas id="splash-bh"></canvas>
-  <div class="splash-content">
-    <div class="logo-big"></div>
-    <h1><span>GymFlow</span></h1>
-    <p>Seu treino. Sua evolução.</p>
-    <div class="stars-text">✦ &nbsp; do not go gentle &nbsp; ✦</div>
-  </div>
+<!-- SPLASH -->
+<div id="splash" role="status" aria-label="Carregando">
+  <div class="brand-orb brand-orb-pulse" aria-hidden="true"></div>
+  <p class="brand-title"><span>Gym</span>Flow</p>
 </div>
 
-<!-- ══════════════════════════════════════════
-     APP
-═══════════════════════════════════════════ -->
+<!-- APP -->
 <div id="app">
+  <main>
+    <section class="screen active" id="screen-home" aria-labelledby="home-title">
+      <header class="page-header">
+        <p class="eyebrow" id="home-date"></p>
+        <h1 id="home-title">Olá!</h1>
+        <div class="sync-status" id="sync-status" role="status"></div>
+      </header>
 
-  <!-- HOME -->
-  <div class="screen active" id="screen-home">
-    <div class="page-header">
-      <div class="eyebrow">Bem-vindo de volta</div>
-      <h2>Bora <span style="background:var(--grad1);-webkit-background-clip:text;-webkit-text-fill-color:transparent">treinar</span> hoje! 💪</h2>
-    </div>
-    <div class="streak-banner">
-      <div class="left"><h3>Sequência atual</h3><p id="streak-num">0 dias 🔥</p></div>
-      <div class="right">⚡</div>
-    </div>
-    <div class="section-title">Semana atual</div>
-    <div class="week-grid" id="week-grid"></div>
-    <div class="today-card">
-      <div class="label">Hoje</div>
-      <div class="workout-name" id="today-name">Nenhum treino</div>
-      <div class="workout-meta" id="today-meta">Adicione um treino no planejador</div>
-      <button class="btn-primary" id="start-workout-btn" onclick="startWorkout()" style="display:none">▶ Iniciar Treino</button>
-    </div>
-    <div class="section-title">Esta semana</div>
-    <div class="stats-grid">
-      <div class="stat-card c1"><div class="stat-label">Treinos</div><div class="stat-value" id="stat-week">0</div><div class="stat-unit">esta semana</div></div>
-      <div class="stat-card c2"><div class="stat-label">Total</div><div class="stat-value" id="stat-total">0</div><div class="stat-unit">all time</div></div>
-      <div class="stat-card c3"><div class="stat-label">Exercícios</div><div class="stat-value" id="stat-exs">0</div><div class="stat-unit">feitos hoje</div></div>
-      <div class="stat-card c4"><div class="stat-label">Minutos</div><div class="stat-value" id="stat-min">0</div><div class="stat-unit">treinados</div></div>
-    </div>
-  </div>
-
-  <!-- PLANNER -->
-  <div class="screen" id="screen-plan">
-    <div class="page-header">
-      <div class="eyebrow">Organização</div>
-      <h2>Plano <span style="background:var(--grad2);-webkit-background-clip:text;-webkit-text-fill-color:transparent">Semanal</span></h2>
-    </div>
-    <div class="day-selector" id="day-selector"></div>
-    <div id="plan-content"></div>
-    <button class="btn-primary" onclick="openAddWorkout()">+ Criar Treino</button>
-  </div>
-
-  <!-- EXERCISES LIBRARY -->
-  <div class="screen" id="screen-exs">
-    <div class="page-header">
-      <div class="eyebrow">Biblioteca</div>
-      <h2>Exercícios <span style="background:var(--grad3);-webkit-background-clip:text;-webkit-text-fill-color:transparent">💥</span></h2>
-    </div>
-    <div class="search-bar">
-      <span class="search-icon"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></span>
-      <input type="text" id="ex-search" placeholder="Buscar exercício..." oninput="filterExercises()">
-    </div>
-    <div class="chips" id="muscle-filter"></div>
-    <div class="ex-grid" id="exercise-library"></div>
-  </div>
-
-  <!-- PROGRESS -->
-  <div class="screen" id="screen-progress">
-    <div class="page-header">
-      <div class="eyebrow">Evolução</div>
-      <h2>Progresso <span style="background:var(--grad4);-webkit-background-clip:text;-webkit-text-fill-color:transparent">📈</span></h2>
-    </div>
-    <div class="chart-wrap">
-      <div class="chart-title">Treinos por semana (últimas 6 semanas)</div>
-      <div class="bar-chart" id="weekly-chart"></div>
-    </div>
-    <div class="chart-wrap">
-      <div class="chart-title">Grupos musculares treinados</div>
-      <div class="donut-wrap" id="muscle-donut"></div>
-    </div>
-    <div class="stats-grid">
-      <div class="stat-card c1"><div class="stat-label">Melhor semana</div><div class="stat-value" id="best-week">0</div><div class="stat-unit">treinos</div></div>
-      <div class="stat-card c2"><div class="stat-label">Mês atual</div><div class="stat-value" id="month-count">0</div><div class="stat-unit">treinos</div></div>
-    </div>
-  </div>
-
-  <!-- SETTINGS -->
-  <div class="screen" id="screen-settings">
-    <div class="page-header">
-      <div class="eyebrow">Configurações</div>
-      <h2>Ajustes <span style="background:var(--grad4);-webkit-background-clip:text;-webkit-text-fill-color:transparent">⚙️</span></h2>
-    </div>
-    <div id="notif-permission-area"></div>
-    <div class="section-title">Lembrete de treino</div>
-    <div class="notif-card" id="notif-settings-card">
-      <div class="notif-row">
-        <div class="notif-info"><h5>Ativar lembretes</h5><p>Notificação diária para treinar</p></div>
-        <button class="toggle" id="notif-toggle" onclick="toggleNotif()"></button>
+      <div class="today-card">
+        <p class="card-label">Treino de hoje</p>
+        <h2 class="workout-name" id="today-name"></h2>
+        <p class="workout-meta" id="today-meta"></p>
+        <button type="button" class="btn-primary" id="today-cta" data-action="todayCta"></button>
       </div>
-      <div id="notif-time-wrap" style="display:none">
-        <div class="form-group" style="margin-bottom:8px">
-          <label class="form-label">Horário do lembrete</label>
-          <input type="time" class="form-input" id="notif-time" value="07:00" onchange="saveNotifTime()">
+
+      <div class="section-header">
+        <h2 class="section-title">Semana</h2>
+        <p class="streak-chip" id="streak-chip"></p>
+      </div>
+      <ul class="week-grid" id="week-grid"></ul>
+
+      <h2 class="section-title">Resumo</h2>
+      <div class="stats-grid">
+        <div class="stat-card"><svg class="icon" aria-hidden="true"><use href="#i-calendar"></use></svg><p class="stat-value" id="stat-week">0</p><p class="stat-label">treinos na semana</p></div>
+        <div class="stat-card"><svg class="icon" aria-hidden="true"><use href="#i-target"></use></svg><p class="stat-value" id="stat-sets">0</p><p class="stat-label">séries hoje</p></div>
+        <div class="stat-card"><svg class="icon" aria-hidden="true"><use href="#i-trophy"></use></svg><p class="stat-value" id="stat-total">0</p><p class="stat-label">treinos no total</p></div>
+        <div class="stat-card"><svg class="icon" aria-hidden="true"><use href="#i-clock"></use></svg><p class="stat-value" id="stat-min">0</p><p class="stat-label">minutos treinados</p></div>
+      </div>
+    </section>
+
+    <section class="screen" id="screen-plan" aria-labelledby="plan-title">
+      <header class="page-header">
+        <p class="eyebrow">Organização</p>
+        <h1 id="plan-title">Plano semanal</h1>
+      </header>
+      <div class="day-selector" id="day-selector"></div>
+      <div id="plan-content"></div>
+    </section>
+
+    <section class="screen" id="screen-exs" aria-labelledby="exs-title">
+      <header class="page-header">
+        <p class="eyebrow">Biblioteca</p>
+        <h1 id="exs-title">Exercícios</h1>
+      </header>
+      <div class="search-bar">
+        <svg class="icon" aria-hidden="true"><use href="#i-search"></use></svg>
+        <input type="search" id="ex-search" placeholder="Buscar por nome ou músculo" aria-label="Buscar exercício" data-input="filterExercises">
+      </div>
+      <div class="chips" id="muscle-filter"></div>
+      <div class="ex-grid" id="exercise-library"></div>
+    </section>
+
+    <section class="screen" id="screen-progress" aria-labelledby="progress-title">
+      <header class="page-header">
+        <p class="eyebrow">Evolução</p>
+        <h1 id="progress-title">Progresso</h1>
+      </header>
+      <div class="stats-grid">
+        <div class="stat-card"><svg class="icon" aria-hidden="true"><use href="#i-trophy"></use></svg><p class="stat-value" id="best-week">0</p><p class="stat-label">treinos na melhor semana</p></div>
+        <div class="stat-card"><svg class="icon" aria-hidden="true"><use href="#i-calendar"></use></svg><p class="stat-value" id="month-count">0</p><p class="stat-label">treinos neste mês</p></div>
+      </div>
+      <div class="card">
+        <h2 class="card-label">Treinos por semana</h2>
+        <div class="bar-chart" id="weekly-chart" role="img"></div>
+      </div>
+      <div class="card">
+        <h2 class="card-label">Grupos musculares no seu plano</h2>
+        <div id="muscle-bars"></div>
+      </div>
+    </section>
+
+    <section class="screen" id="screen-settings" aria-labelledby="settings-title">
+      <header class="page-header">
+        <p class="eyebrow">Configurações</p>
+        <h1 id="settings-title">Ajustes</h1>
+      </header>
+
+      <div id="notif-permission-area"></div>
+
+      <h2 class="section-title">Lembrete de treino</h2>
+      <div class="card">
+        <div class="setting-row">
+          <div><p class="setting-title" id="notif-label">Ativar lembretes</p><p class="setting-desc">Disparam enquanto o app estiver aberto ou em segundo plano</p></div>
+          <button type="button" class="toggle" id="notif-toggle" role="switch" aria-checked="false" aria-labelledby="notif-label" data-action="toggleNotif"></button>
         </div>
-        <div class="form-group" style="margin-bottom:0">
-          <label class="form-label">Dias da semana</label>
-          <div class="chips" id="notif-days"></div>
+        <div id="notif-time-wrap" hidden>
+          <div class="form-group">
+            <label class="form-label" for="notif-time">Horário</label>
+            <input type="time" class="form-input" id="notif-time" data-change="saveNotifTime">
+          </div>
+          <p class="form-label">Dias da semana</p>
+          <div class="chips chips-tight" id="notif-days"></div>
         </div>
       </div>
-    </div>
-    <div class="section-title" style="margin-top:8px">Timer de descanso padrão</div>
-    <div class="notif-card">
-      <div class="notif-row" style="margin-bottom:0">
-        <div class="notif-info"><h5>Tempo de descanso</h5><p>Entre séries</p></div>
-        <select class="form-input" id="rest-default" onchange="saveRestDefault()" style="width:100px;padding:8px 10px;font-size:13px">
-          <option value="30">30s</option>
-          <option value="45">45s</option>
-          <option value="60" selected>60s</option>
-          <option value="90">90s</option>
-          <option value="120">2min</option>
-        </select>
-      </div>
-    </div>
-    <div class="section-title" style="margin-top:8px">Sobre</div>
-    <div class="notif-card">
-      <div style="text-align:center;padding:8px 0">
-        <div style="width:44px;height:44px;border-radius:50%;background:radial-gradient(circle,#fff8e0 0%,#c88820 40%,#7a4a08 75%,transparent 100%);margin:0 auto 10px;box-shadow:0 0 20px #c8882055"></div>
-        <div style="font-size:18px;font-weight:800;background:var(--grad1);-webkit-background-clip:text;-webkit-text-fill-color:transparent">GymFlow</div>
-        <div style="font-size:12px;color:var(--muted);margin-top:4px">Do not go gentle into that good night</div>
-      </div>
-    </div>
-    <div class="section-title" style="margin-top:8px">Conta</div>
-    <div class="notif-card">
-      <div class="notif-row" style="margin-bottom:0">
-        <div class="notif-info"><h5 id="settings-user-email" style="font-size:13px;word-break:break-all"></h5><p>Usuário conectado</p></div>
-        <button class="btn-danger" onclick="doLogout()" style="flex-shrink:0">Sair</button>
-      </div>
-    </div>
-    <div id="admin-section" style="display:none;margin-top:0">
-      <div class="section-title" style="margin-top:8px">Administrador</div>
-      <button class="btn-primary" onclick="openAdminPanel()" style="background:linear-gradient(135deg,#1a2840,#253d60);box-shadow:none;border:1px solid #2a3d5e">👑 Gerenciar Usuários</button>
-    </div>
-  </div>
 
-  <!-- NAV -->
-  <nav>
-    <button class="nav-btn active" onclick="goScreen('home',this)" aria-label="Início">
-      <span class="icon"><svg viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v9a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1v-9"/></svg></span>Início
-    </button>
-    <button class="nav-btn" onclick="goScreen('plan',this)" aria-label="Plano">
-      <span class="icon"><svg viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="16" rx="2.5"/><path d="M3.5 9h17M8 3v3M16 3v3"/><path d="M8 13h2M8 17h2M11.5 13h2M11.5 17h2M15 13h2M15 17h2"/></svg></span>Plano
-    </button>
-    <button class="nav-btn" onclick="goScreen('exs',this)" aria-label="Exercícios">
-      <span class="icon"><svg viewBox="0 0 24 24"><path d="M6 8v8M18 8v8"/><path d="M2.5 10.5v3M21.5 10.5v3"/><rect x="4.5" y="6.5" width="3" height="11" rx="1"/><rect x="16.5" y="6.5" width="3" height="11" rx="1"/><path d="M7.5 12h9"/></svg></span>Exercícios
-    </button>
-    <button class="nav-btn" onclick="goScreen('progress',this)" aria-label="Progresso">
-      <span class="icon"><svg viewBox="0 0 24 24"><path d="M4 20V10M11 20V4M18 20v-7"/></svg></span>Progresso
-    </button>
-    <button class="nav-btn" onclick="goScreen('settings',this)" aria-label="Ajustes">
-      <span class="icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M12 3v2.2M12 18.8V21M21 12h-2.2M5.2 12H3M18.4 5.6l-1.5 1.5M7.1 16.9l-1.5 1.5M18.4 18.4l-1.5-1.5M7.1 7.1 5.6 5.6"/></svg></span>Ajustes
-    </button>
+      <h2 class="section-title">Descanso entre séries</h2>
+      <div class="card">
+        <div class="setting-row">
+          <div><label class="setting-title" for="rest-override">Tempo de descanso</label><p class="setting-desc">"Por exercício" usa o tempo indicado para cada um</p></div>
+          <select class="form-input select-compact" id="rest-override" data-change="saveRestOverride">
+            <option value="0">Por exercício</option>
+            <option value="30">30s</option>
+            <option value="45">45s</option>
+            <option value="60">60s</option>
+            <option value="90">90s</option>
+            <option value="120">2 min</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="admin-section" hidden>
+        <h2 class="section-title">Administrador</h2>
+        <button type="button" class="btn-secondary btn-block" data-action="openAdminPanel"><svg class="icon" aria-hidden="true"><use href="#i-crown"></use></svg>Gerenciar usuários</button>
+      </div>
+
+      <h2 class="section-title">Conta</h2>
+      <div class="card">
+        <div class="setting-row">
+          <div class="setting-account"><p class="setting-title" id="settings-user-email"></p><p class="setting-desc">Conta conectada</p></div>
+          <button type="button" class="btn-danger" data-action="doLogout"><svg class="icon" aria-hidden="true"><use href="#i-logout"></use></svg>Sair</button>
+        </div>
+      </div>
+      <p class="app-signature">GymFlow · Do not go gentle into that good night</p>
+    </section>
+  </main>
+
+  <nav aria-label="Navegação principal">
+    <button type="button" class="nav-btn active" data-action="goScreen" data-screen="home" aria-current="page"><svg class="icon" aria-hidden="true"><use href="#i-home"></use></svg>Início</button>
+    <button type="button" class="nav-btn" data-action="goScreen" data-screen="plan"><svg class="icon" aria-hidden="true"><use href="#i-calendar"></use></svg>Plano</button>
+    <button type="button" class="nav-btn" data-action="goScreen" data-screen="exs"><svg class="icon" aria-hidden="true"><use href="#i-dumbbell"></use></svg>Exercícios</button>
+    <button type="button" class="nav-btn" data-action="goScreen" data-screen="progress"><svg class="icon" aria-hidden="true"><use href="#i-chart"></use></svg>Progresso</button>
+    <button type="button" class="nav-btn" data-action="goScreen" data-screen="settings"><svg class="icon" aria-hidden="true"><use href="#i-settings"></use></svg>Ajustes</button>
   </nav>
 </div>
 
-<!-- ══════════════════════════════════════════
-     MODAIS
-═══════════════════════════════════════════ -->
-
-<!-- Exercise Detail -->
-<div class="modal-overlay" id="workout-modal" onclick="closeModal(event,'workout-modal')">
+<!-- DETALHE DO EXERCÍCIO -->
+<div class="modal-overlay" id="exercise-modal" role="dialog" aria-modal="true" aria-labelledby="exercise-modal-title" data-action="overlayClick">
   <div class="modal-sheet">
-    <div class="modal-handle"></div>
-    <button class="modal-close" onclick="dismissModal('workout-modal')" aria-label="Fechar"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
-    <div class="modal-header"><h3 id="modal-workout-title"></h3><p id="modal-workout-meta"></p></div>
-    <div class="modal-body" id="modal-workout-body"></div>
+    <div class="modal-handle" aria-hidden="true"></div>
+    <button type="button" class="modal-close" data-action="dismissModal" aria-label="Fechar"><svg class="icon" aria-hidden="true"><use href="#i-close"></use></svg></button>
+    <div class="modal-header"><h2 id="exercise-modal-title"></h2><p id="exercise-modal-meta"></p></div>
+    <div class="modal-body" id="exercise-modal-body"></div>
   </div>
 </div>
 
-<!-- Add Workout -->
-<div class="modal-overlay" id="add-modal" onclick="closeModal(event,'add-modal')">
+<!-- CRIAR / EDITAR TREINO -->
+<div class="modal-overlay" id="add-modal" role="dialog" aria-modal="true" aria-labelledby="add-modal-title" data-action="overlayClick">
   <div class="modal-sheet">
-    <div class="modal-handle"></div>
-    <button class="modal-close" onclick="dismissModal('add-modal')" aria-label="Fechar"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
-    <div class="modal-header"><h3>🌌 Criar Treino</h3></div>
+    <div class="modal-handle" aria-hidden="true"></div>
+    <button type="button" class="modal-close" data-action="dismissModal" aria-label="Fechar"><svg class="icon" aria-hidden="true"><use href="#i-close"></use></svg></button>
+    <div class="modal-header"><h2 id="add-modal-title">Criar treino</h2></div>
     <div class="modal-body">
       <div class="form-group">
-        <label class="form-label">Nome do treino</label>
-        <input class="form-input" id="new-workout-name" placeholder="Ex: Peito e Tríceps">
+        <label class="form-label" for="new-workout-name">Nome do treino</label>
+        <input class="form-input" id="new-workout-name" placeholder="Ex.: Peito e tríceps" maxlength="60">
       </div>
       <div class="form-group">
-        <label class="form-label">Dia da semana</label>
+        <label class="form-label" for="new-workout-day">Dia da semana</label>
         <select class="form-input" id="new-workout-day">
           <option value="0">Segunda-feira</option><option value="1">Terça-feira</option>
           <option value="2">Quarta-feira</option><option value="3">Quinta-feira</option>
           <option value="4">Sexta-feira</option><option value="5">Sábado</option><option value="6">Domingo</option>
         </select>
       </div>
-      <div class="form-group">
-        <label class="form-label">Exercícios</label>
-        <div class="selected-summary" id="picker-summary">Nenhum exercício selecionado</div>
-        <div id="ex-picker"></div>
-      </div>
-      <button class="btn-primary" onclick="saveWorkout()">💾 Salvar Treino</button>
+      <p class="form-label">Exercícios</p>
+      <div id="ex-picker"></div>
+    </div>
+    <div class="modal-footer">
+      <p class="selected-summary" id="picker-summary" aria-live="polite"></p>
+      <button type="button" class="btn-primary" data-action="saveWorkout">Salvar treino</button>
     </div>
   </div>
 </div>
 
-<!-- Active Workout -->
-<div class="modal-overlay" id="active-modal" onclick="closeModal(event,'active-modal')">
+<!-- TREINO ATIVO -->
+<div class="modal-overlay" id="active-modal" role="dialog" aria-modal="true" aria-labelledby="active-title" data-action="overlayClick">
   <div class="modal-sheet">
-    <div class="modal-handle"></div>
-    <button class="modal-close" onclick="dismissModal('active-modal')" aria-label="Fechar"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
-    <div class="modal-header"><h3 id="active-title"></h3><p style="color:var(--muted);font-size:13px">Marque ao completar cada exercício</p></div>
-    <div class="modal-body">
-      <div class="progress-wrap">
-        <div class="progress-label"><span>Progresso</span><span id="progress-pct">0%</span></div>
-        <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+    <div class="modal-handle" aria-hidden="true"></div>
+    <button type="button" class="modal-close" data-action="dismissModal" aria-label="Minimizar treino"><svg class="icon" aria-hidden="true"><use href="#i-chevron"></use></svg></button>
+    <div class="active-header">
+      <h2 id="active-title"></h2>
+      <div class="active-timer">
+        <span class="timer-value" id="workout-timer" role="timer">00:00</span>
+        <button type="button" class="icon-btn" id="timer-toggle" data-action="toggleTimer" aria-label="Pausar cronômetro"></button>
+        <button type="button" class="icon-btn" data-action="resetTimer" aria-label="Zerar cronômetro"><svg class="icon" aria-hidden="true"><use href="#i-reset"></use></svg></button>
       </div>
-      <div class="timer-display"><div class="time" id="workout-timer">00:00</div></div>
-      <div class="timer-controls">
-        <button class="timer-btn t-start" id="timer-toggle" onclick="toggleTimer()">▶ Iniciar</button>
-        <button class="timer-btn t-reset" onclick="resetTimer()">↺ Reset</button>
-      </div>
-      <div id="active-exercises"></div>
-      <button class="btn-primary" onclick="finishWorkout()" style="margin-top:8px">✓ Finalizar Treino</button>
+      <div class="progress-label"><span id="progress-count"></span><span id="progress-pct">0%</span></div>
+      <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+    </div>
+    <div class="modal-body" id="active-exercises"></div>
+    <div class="modal-footer">
+      <button type="button" class="btn-primary" data-action="finishWorkout"><svg class="icon" aria-hidden="true"><use href="#i-check"></use></svg>Finalizar treino</button>
     </div>
   </div>
 </div>
 
-<!-- Admin Panel -->
-<div class="modal-overlay" id="admin-modal" onclick="closeModal(event,'admin-modal')">
+<!-- ADMIN -->
+<div class="modal-overlay" id="admin-modal" role="dialog" aria-modal="true" aria-labelledby="admin-title" data-action="overlayClick">
   <div class="modal-sheet">
-    <div class="modal-handle"></div>
-    <button class="modal-close" onclick="dismissModal('admin-modal')" aria-label="Fechar"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
-    <div class="modal-header"><h3>👑 Gerenciar Usuários</h3><p>Crie contas para compartilhar a demo</p></div>
-    <div class="modal-body">
+    <div class="modal-handle" aria-hidden="true"></div>
+    <button type="button" class="modal-close" data-action="dismissModal" aria-label="Fechar"><svg class="icon" aria-hidden="true"><use href="#i-close"></use></svg></button>
+    <div class="modal-header"><h2 id="admin-title">Gerenciar usuários</h2><p>Crie contas para compartilhar o app</p></div>
+    <form class="modal-body" data-submit="createManagedUser" novalidate>
       <div class="form-group">
-        <label class="form-label">E-mail do novo usuário</label>
-        <input class="form-input" type="email" id="new-user-email" placeholder="usuario@email.com" inputmode="email">
+        <label class="form-label" for="new-user-email">E-mail do novo usuário</label>
+        <input class="form-input" type="email" id="new-user-email" placeholder="usuario@email.com" autocomplete="off">
       </div>
       <div class="form-group">
-        <label class="form-label">Senha (mínimo 6 caracteres)</label>
-        <input class="form-input" type="password" id="new-user-password" placeholder="••••••••">
+        <label class="form-label" for="new-user-password">Senha temporária</label>
+        <input class="form-input" type="password" id="new-user-password" autocomplete="new-password" aria-describedby="new-user-help">
+        <p class="form-help" id="new-user-help">Mínimo de 8 caracteres</p>
       </div>
-      <button class="btn-primary" onclick="createDemoUser()">➕ Criar Usuário</button>
-      <div id="created-users-list" style="margin-top:20px"></div>
+      <button type="submit" class="btn-primary" id="new-user-btn">Criar usuário</button>
+      <div id="created-users-list"></div>
+    </form>
+  </div>
+</div>
+
+<!-- CONFIRMAÇÃO -->
+<div class="modal-overlay modal-center" id="confirm-modal" role="alertdialog" aria-modal="true" aria-labelledby="confirm-title" aria-describedby="confirm-message">
+  <div class="confirm-box">
+    <h2 id="confirm-title"></h2>
+    <p id="confirm-message"></p>
+    <div class="confirm-actions">
+      <button type="button" class="btn-secondary" id="confirm-cancel">Cancelar</button>
+      <button type="button" class="btn-primary" id="confirm-ok"></button>
     </div>
   </div>
 </div>
 
-<!-- REST TIMER -->
-<div class="rest-overlay" id="rest-overlay">
-  <div class="rest-title">⏱ Descanse agora</div>
+<!-- DESCANSO -->
+<div class="rest-overlay" id="rest-overlay" role="dialog" aria-modal="true" aria-labelledby="rest-title">
+  <h2 id="rest-title">Descanse agora</h2>
   <div class="rest-ring-wrap">
-    <svg viewBox="0 0 180 180" width="180" height="180">
-      <circle cx="90" cy="90" r="80" fill="none" stroke="#2d1f4e" stroke-width="12"/>
-      <circle cx="90" cy="90" r="80" fill="none" stroke="url(#rg)" stroke-width="12"
-        stroke-linecap="round" id="rest-arc" stroke-dasharray="502" stroke-dashoffset="0"/>
-      <defs><linearGradient id="rg" x1="0%" y1="0%" x2="100%" y2="0%">
-        <stop offset="0%" stop-color="#7c3aed"/><stop offset="100%" stop-color="#00d4ff"/>
-      </linearGradient></defs>
+    <svg viewBox="0 0 180 180" width="180" height="180" aria-hidden="true">
+      <circle cx="90" cy="90" r="80" class="rest-ring-track"/>
+      <circle cx="90" cy="90" r="80" class="rest-ring-arc" id="rest-arc"/>
     </svg>
     <div class="rest-ring-center">
-      <div class="rest-num" id="rest-num">60</div>
+      <div class="rest-num" id="rest-num" role="timer">60</div>
       <div class="rest-label">segundos</div>
     </div>
   </div>
-  <div class="rest-sub" id="rest-next-ex"></div>
+  <p class="rest-sub" id="rest-next-ex"></p>
   <div class="rest-btns">
-    <button class="rest-add" onclick="addRestTime()">+15s</button>
-    <button class="rest-skip" onclick="skipRest()">Pular ▶</button>
+    <button type="button" class="btn-secondary" data-action="addRestTime">+15s</button>
+    <button type="button" class="btn-primary" data-action="skipRest">Pular descanso</button>
   </div>
 </div>
 
-<!-- GIF FULLSCREEN LIGHTBOX -->
-<div class="gif-lightbox" id="gif-lightbox" onclick="closeGifLightbox()">
-  <button class="gif-lightbox-close" onclick="closeGifLightbox()" aria-label="Fechar"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
-  <img id="gif-lightbox-img" src="" alt="">
-  <div class="gif-lightbox-caption" id="gif-lightbox-caption"></div>
+<!-- IMAGEM EM TELA CHEIA -->
+<div class="gif-lightbox" id="gif-lightbox" role="dialog" aria-modal="true" aria-labelledby="gif-lightbox-caption" data-action="closeGifLightbox">
+  <button type="button" class="modal-close" data-action="closeGifLightbox" aria-label="Fechar"><svg class="icon" aria-hidden="true"><use href="#i-close"></use></svg></button>
+  <img id="gif-lightbox-img" alt="" data-media>
+  <p id="gif-lightbox-caption"></p>
 </div>
 
-<div class="toast" id="toast"></div>
-
-<!-- ══════════════════════════════════════════
-     SCRIPTS  (ordem importa)
-═══════════════════════════════════════════ -->
-<script src="js/firebase-config.js"></script>
-<script src="js/data.js"></script>
-<script src="js/background.js"></script>
-<script src="js/app.js"></script>
-<script src="js/home.js"></script>
-<script src="js/planner.js"></script>
-<script src="js/exercises.js"></script>
-<script src="js/workout.js"></script>
-<script src="js/progress.js"></script>
-<script src="js/settings.js"></script>
-<script src="js/auth.js"></script>
-
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 </body>
 </html>

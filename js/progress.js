@@ -1,64 +1,56 @@
 // ==================== PROGRESS ====================
-function initProgress(){ renderWeeklyChart(); renderMuscleDonut(); renderProgressStats(); }
+const CHART_WEEKS = 6;
+const BEST_WEEK_LOOKBACK = 52;
 
-function renderWeeklyChart(){
-  const chart = document.getElementById('weekly-chart'); chart.innerHTML = '';
-  const weeks = [], today = new Date();
-  for(let w = 5; w >= 0; w--){
-    const start = new Date(today);
-    start.setDate(today.getDate() - (today.getDay() === 0 ? 6 : today.getDay() - 1) - (w*7));
-    let count = 0;
-    for(let d = 0; d < 7; d++){
-      const dd = new Date(start); dd.setDate(start.getDate() + d);
-      if(state.completedDays.includes(dd.toISOString().split('T')[0])) count++;
-    }
-    weeks.push({ label:'S' + (6-w), count });
-  }
-  const max = Math.max(...weeks.map(w => w.count), 1);
-  weeks.forEach((w, i) => {
-    const col = document.createElement('div'); col.className = 'bar-col';
-    const h   = Math.max(4, Math.round((w.count / max) * 72));
-    col.innerHTML = `<div class="bar ${i===weeks.length-1?'active-bar':''}" style="height:${h}px"></div><div class="bar-label">${w.label}</div>`;
-    chart.appendChild(col);
-  });
+function initProgress(){ renderWeeklyChart(); renderMuscleBars(); renderProgressStats(); }
+
+function countCompletedIn(dateKeys){
+  return state.completedDays.filter(d => dateKeys.includes(d)).length;
 }
 
-function renderMuscleDonut(){
+function renderWeeklyChart(){
+  const weeks = Array.from({ length: CHART_WEEKS }, (_, i) => {
+    const keys = weekDateKeys(new Date(), CHART_WEEKS - 1 - i);
+    const monday = parseDateKey(keys[0]);
+    return { label: `${monday.getDate()}/${monday.getMonth() + 1}`, count: countCompletedIn(keys) };
+  });
+  const max = Math.max(...weeks.map(w => w.count), 1);
+  const chart = document.getElementById('weekly-chart');
+  chart.setAttribute('aria-label', `Treinos nas últimas ${CHART_WEEKS} semanas: ` + weeks.map(w => w.count).join(', '));
+  chart.innerHTML = weeks.map((w, i) => {
+    const height = Math.max(6, Math.round((w.count / max) * 100));
+    return `<div class="bar-col"><span class="bar-value">${w.count}</span><div class="bar ${i === weeks.length - 1 ? 'active-bar' : ''}" style="height:${height}%"></div><span class="bar-label">${w.label}</span></div>`;
+  }).join('');
+}
+
+function renderMuscleBars(){
   const groups = {};
   state.workouts.forEach(w => w.exercises.forEach(eid => {
-    const ex = EXERCISES_DB.find(e => e.id === eid);
+    const ex = findExercise(eid);
     if(ex) groups[ex.group] = (groups[ex.group] || 0) + 1;
   }));
-  const total   = Object.values(groups).reduce((a,b) => a+b, 0) || 1;
-  const colors  = ['#b044ff','#ff6b9d','#00d4ff','#06d6a0','#ffd700','#7c3aed'];
-  const entries = Object.entries(groups);
-  const wrap    = document.getElementById('muscle-donut');
-  if(!entries.length){ wrap.innerHTML = '<p style="color:var(--muted);font-size:13px">Adicione treinos para ver</p>'; return; }
-  let offset = 0;
-  const slices = entries.map(([g, c], i) => {
-    const pct  = c/total, dash = pct*100, gap = 100-dash;
-    const s    = `<circle cx="40" cy="40" r="30" fill="none" stroke="${colors[i%colors.length]}" stroke-width="14" stroke-dasharray="${dash} ${gap}" stroke-dashoffset="${-offset}" transform="rotate(-90 40 40)"/>`;
-    offset += pct*100;
-    return { s, g, pct, color:colors[i%colors.length] };
-  });
-  wrap.innerHTML = `<div class="donut-chart"><svg viewBox="0 0 80 80" width="80" height="80">${slices.map(s=>s.s).join('')}</svg><div class="donut-center">${entries.length}<br>grupos</div></div><div class="donut-legend">${slices.map(s=>`<div class="legend-item"><div class="legend-dot" style="background:${s.color}"></div><span>${s.g} ${Math.round(s.pct*100)}%</span></div>`).join('')}</div>`;
+  const entries = Object.entries(groups).sort((a, b) => b[1] - a[1]);
+  const wrap = document.getElementById('muscle-bars');
+  if(!entries.length){
+    wrap.innerHTML = '<p class="muted-text">Crie um treino no plano para ver a distribuição.</p>';
+    return;
+  }
+  const total = entries.reduce((sum, [, count]) => sum + count, 0);
+  wrap.innerHTML = entries.map(([group, count]) => {
+    const pct = Math.round((count / total) * 100);
+    return `<div class="muscle-row">
+      <div class="muscle-row-label"><span>${escapeHtml(group)}</span><span>${count} · ${pct}%</span></div>
+      <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
+    </div>`;
+  }).join('');
 }
 
 function renderProgressStats(){
-  const today = new Date(); let best = 0;
-  for(let w = 0; w < 52; w++){
-    const start = new Date(today);
-    start.setDate(today.getDate() - (today.getDay() === 0 ? 6 : today.getDay() - 1) - (w*7));
-    let count = 0;
-    for(let d = 0; d < 7; d++){
-      const dd = new Date(start); dd.setDate(start.getDate() + d);
-      if(state.completedDays.includes(dd.toISOString().split('T')[0])) count++;
-    }
-    if(count > best) best = count;
+  let best = 0;
+  for(let w = 0; w < BEST_WEEK_LOOKBACK; w++){
+    best = Math.max(best, countCompletedIn(weekDateKeys(new Date(), w)));
   }
   document.getElementById('best-week').textContent = best;
-  const month = today.getMonth(), year = today.getFullYear();
-  document.getElementById('month-count').textContent = state.completedDays.filter(d => {
-    const dd = new Date(d); return dd.getMonth() === month && dd.getFullYear() === year;
-  }).length;
+  const monthPrefix = toDateKey().slice(0, 7);
+  document.getElementById('month-count').textContent = state.completedDays.filter(d => d.startsWith(monthPrefix)).length;
 }

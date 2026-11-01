@@ -1,59 +1,72 @@
 // ==================== HOME ====================
-function initHome(){ renderWeekGrid(); renderTodayCard(); renderStats(); }
+const WEEKDAY_SHORT = ['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'];
+const WEEKDAY_LONG  = ['Segunda','Terça','Quarta','Quinta','Sexta','Sábado','Domingo'];
+
+function initHome(){ renderHeader(); renderTodayCard(); renderWeekGrid(); renderStats(); }
+
+function plural(count, singular, pluralForm){ return count === 1 ? singular : pluralForm; }
+
+function renderHeader(){
+  const name = (auth.currentUser && auth.currentUser.displayName || '').split(' ')[0];
+  document.getElementById('home-title').textContent = name ? `Olá, ${name}!` : 'Olá!';
+  document.getElementById('home-date').textContent =
+    new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' });
+}
 
 function renderWeekGrid(){
-  const days = ['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'];
-  const today = new Date();
-  const grid  = document.getElementById('week-grid'); grid.innerHTML = '';
-  const weekStart = new Date(today);
-  weekStart.setDate(today.getDate() - (today.getDay() === 0 ? 6 : today.getDay() - 1));
-  for(let i = 0; i < 7; i++){
-    const d       = new Date(weekStart); d.setDate(weekStart.getDate() + i);
-    const dateStr = d.toISOString().split('T')[0];
-    const isToday    = i === currentDay;
-    const isDone     = state.completedDays.includes(dateStr);
-    const hasWorkout = state.workouts.some(w => w.day === i);
-    const pill = document.createElement('div');
-    pill.className = 'day-pill' + (isToday?' today':'') + (isDone?' done':hasWorkout?' has-workout':'');
-    pill.innerHTML = `<span>${days[i]}</span><span class="day-num">${d.getDate()}</span>`;
-    grid.appendChild(pill);
-  }
+  const todayIdx = mondayIndex();
+  document.getElementById('week-grid').innerHTML = weekDateKeys().map((key, i) => {
+    const done = state.completedDays.includes(key);
+    const planned = state.workouts.some(w => w.day === i);
+    const classes = ['day-pill', i === todayIdx && 'today', done && 'done', !done && planned && 'has-workout'].filter(Boolean).join(' ');
+    const status = done ? 'treino concluído' : planned ? 'treino planejado' : 'sem treino';
+    return `<li class="${classes}" aria-label="${WEEKDAY_LONG[i]}, ${status}">
+      <span>${WEEKDAY_SHORT[i]}</span>
+      <span class="day-num">${done ? icon('check') : parseDateKey(key).getDate()}</span>
+    </li>`;
+  }).join('');
 }
 
 function renderTodayCard(){
-  const workout = state.workouts.find(w => w.day === currentDay);
+  const workout = state.workouts.find(w => w.day === mondayIndex());
+  const cta = document.getElementById('today-cta');
+  const name = document.getElementById('today-name');
+  const meta = document.getElementById('today-meta');
   if(workout){
-    document.getElementById('today-name').textContent = workout.name;
-    document.getElementById('today-meta').textContent = workout.exercises.length + ' exercícios';
-    document.getElementById('start-workout-btn').style.display = 'block';
+    const count = workout.exercises.length;
+    const inProgress = activeSession && activeSession.workout.day === workout.day;
+    name.textContent = workout.name;
+    meta.textContent = `${count} ${plural(count, 'exercício', 'exercícios')}`;
+    cta.innerHTML = icon('play') + (inProgress ? 'Continuar treino' : 'Iniciar treino');
+    cta.className = 'btn-primary';
   } else {
-    document.getElementById('today-name').textContent = 'Descanso 😴';
-    document.getElementById('today-meta').textContent = 'Nenhum treino planejado para hoje';
-    document.getElementById('start-workout-btn').style.display = 'none';
+    name.textContent = 'Dia de descanso';
+    meta.textContent = 'Nenhum treino planejado para hoje';
+    cta.innerHTML = icon('calendar') + 'Planejar treino';
+    cta.className = 'btn-secondary btn-block';
   }
 }
 
+ACTIONS.todayCta = () => {
+  if(state.workouts.some(w => w.day === mondayIndex())) startWorkout();
+  else document.querySelector('.nav-btn[data-screen="plan"]').click();
+};
+
+function countSetsToday(){
+  const today = toDateKey();
+  return Object.keys(state.loadHistory).reduce((total, eid) => {
+    const record = getRecordOn(eid, today);
+    return total + (record ? recordSets(record).length : 0);
+  }, 0);
+}
+
 function renderStats(){
-  const today     = new Date();
-  const weekStart = new Date(today);
-  weekStart.setDate(today.getDate() - (today.getDay() === 0 ? 6 : today.getDay() - 1));
-  const weekDays = [];
-  for(let i = 0; i < 7; i++){
-    const d = new Date(weekStart); d.setDate(weekStart.getDate() + i);
-    weekDays.push(d.toISOString().split('T')[0]);
-  }
-  document.getElementById('stat-week').textContent  = state.completedDays.filter(d => weekDays.includes(d)).length;
+  const week = weekDateKeys();
+  document.getElementById('stat-week').textContent  = state.completedDays.filter(d => week.includes(d)).length;
+  document.getElementById('stat-sets').textContent  = countSetsToday();
   document.getElementById('stat-total').textContent = state.totalWorkouts;
   document.getElementById('stat-min').textContent   = state.totalMinutes;
-  document.getElementById('stat-exs').textContent   = activeChecked.size;
-  let streak = 0;
-  const sorted = [...state.completedDays].sort().reverse();
-  if(sorted.length > 0){
-    let check = new Date(today.toISOString().split('T')[0]);
-    for(let i = 0; i < 365; i++){
-      const s = check.toISOString().split('T')[0];
-      if(sorted.includes(s)){ streak++; check.setDate(check.getDate()-1); } else break;
-    }
-  }
-  document.getElementById('streak-num').textContent = streak + ' dia' + (streak !== 1 ? 's' : '') + ' 🔥';
+  const streak = computeStreak(state.completedDays);
+  document.getElementById('streak-chip').innerHTML =
+    icon('flame') + `${streak} ${plural(streak, 'dia seguido', 'dias seguidos')}`;
 }

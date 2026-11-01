@@ -1,0 +1,14 @@
+.agents
+.claude
+.firebase
+.firebaserc
+.gitignore
+config.txt
+.env*
+firebase.json
+firestore.rules
+firestore.indexes.json
+skills-lock.json
+tests
+*.md
+*.log

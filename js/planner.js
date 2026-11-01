@@ -1,124 +1,156 @@
 // ==================== PLANNER ====================
+let plannerDay = mondayIndex();
+let pickerSelected = new Set();
+let editingDay = null;
+
 function initPlanner(){
-  const days = ['Segunda','Terça','Quarta','Quinta','Sexta','Sábado','Domingo'];
-  const sel  = document.getElementById('day-selector'); sel.innerHTML = '';
-  days.forEach((d, i) => {
-    const tab = document.createElement('div');
-    tab.className = 'day-tab' + (i === plannerDay ? ' active' : '');
-    tab.textContent = d;
-    tab.onclick = () => {
-      plannerDay = i;
-      document.querySelectorAll('.day-tab').forEach((t, j) => t.className = 'day-tab' + (j === i ? ' active' : ''));
-      renderPlanContent();
-    };
-    sel.appendChild(tab);
-  });
+  document.getElementById('day-selector').innerHTML = WEEKDAY_LONG.map((d, i) =>
+    `<button type="button" class="day-tab ${i === plannerDay ? 'active' : ''}" data-action="selectPlannerDay" data-day="${i}" aria-pressed="${i === plannerDay}">${d}</button>`
+  ).join('');
   renderPlanContent();
 }
+
+ACTIONS.selectPlannerDay = (el) => {
+  plannerDay = Number(el.dataset.day);
+  initPlanner();
+};
 
 function renderPlanContent(){
   const cont    = document.getElementById('plan-content');
   const workout = state.workouts.find(w => w.day === plannerDay);
   if(!workout){
-    cont.innerHTML = `<div class="empty-state"><div class="empty-icon">🌌</div><p>Nenhum treino para este dia.<br>Crie um treino abaixo!</p></div>`;
+    cont.innerHTML = `<div class="empty-state">
+      ${icon('moon', 'empty-icon')}
+      <p>Nenhum treino na ${WEEKDAY_LONG[plannerDay].toLowerCase()}.</p>
+      <button type="button" class="btn-primary" data-action="openAddWorkout">${icon('plus')}Criar treino</button>
+    </div>`;
     return;
   }
   cont.innerHTML = `<div class="plan-slot">
     <div class="slot-header">
-      <h4>${workout.name}</h4>
-      <button class="btn-danger" onclick="deleteWorkout(${workout.day})">Excluir</button>
+      <h2>${escapeHtml(workout.name)}</h2>
+      <div class="slot-actions">
+        <button type="button" class="icon-btn" data-action="openEditWorkout" aria-label="Editar treino">${icon('edit')}</button>
+        <button type="button" class="icon-btn icon-btn-danger" data-action="deleteWorkout" aria-label="Excluir treino">${icon('trash')}</button>
+      </div>
     </div>
     ${workout.exercises.map(eid => {
-      const ex = EXERCISES_DB.find(e => e.id === eid); if(!ex) return '';
-      return `<div class="exercise-item">${makeThumb(ex.img,ex.icon,52)}<div class="ex-info"><h5>${ex.name}</h5><p>${ex.sets} • ${ex.muscle}</p></div></div>`;
+      const ex = findExercise(eid);
+      if(!ex) return '';
+      return `<div class="exercise-row">${makeThumb(ex)}<div class="ex-info"><h3>${escapeHtml(ex.name)}</h3><p>${escapeHtml(ex.sets)} · ${escapeHtml(ex.muscle)}</p></div></div>`;
     }).join('')}
   </div>`;
 }
 
-let pickerSelected = new Set();
-
-function openAddWorkout(){
-  document.getElementById('new-workout-name').value = '';
-  document.getElementById('new-workout-day').value  = plannerDay;
-  pickerSelected = new Set();
+function openWorkoutForm(workout){
+  editingDay = workout ? workout.day : null;
+  document.getElementById('add-modal-title').textContent = workout ? 'Editar treino' : 'Criar treino';
+  document.getElementById('new-workout-name').value = workout ? workout.name : '';
+  document.getElementById('new-workout-day').value  = workout ? workout.day : plannerDay;
+  pickerSelected = new Set(workout ? workout.exercises : []);
   renderExPicker();
-  document.getElementById('add-modal').classList.add('open');
+  openModal('add-modal');
 }
+
+ACTIONS.openAddWorkout  = () => openWorkoutForm(null);
+ACTIONS.openEditWorkout = () => openWorkoutForm(state.workouts.find(w => w.day === plannerDay));
 
 function renderExPicker(){
-  const picker = document.getElementById('ex-picker'); picker.innerHTML = '';
-  PICKER_GROUPS.forEach((g, gi) => {
-    const exs      = EXERCISES_DB.filter(e => pickerCategoryOf(e) === g.key);
-    if(!exs.length) return;
-    const selCount = exs.filter(e => pickerSelected.has(e.id)).length;
-    const group    = document.createElement('div');
-    group.className = 'picker-group' + (gi === 0 ? ' open' : '');
-    group.id = 'pg-' + g.key;
-    group.innerHTML = `
-      <div class="picker-group-header" onclick="togglePickerGroup('${g.key}')">
-        <div class="picker-group-title"><span class="picker-group-icon">${g.icon}</span>${g.label}</div>
-        <div style="display:flex;align-items:center;gap:10px">
-          <span class="picker-group-count ${selCount===0?'zero':''}" id="pgc-${g.key}">${selCount}</span>
-          <span class="picker-group-chevron">▾</span>
-        </div>
-      </div>
+  document.getElementById('ex-picker').innerHTML = PICKER_GROUPS.map((group, index) => {
+    const exercises = EXERCISES_DB.filter(e => pickerCategoryOf(e) === group);
+    const selected  = exercises.filter(e => pickerSelected.has(e.id)).length;
+    const open      = selected > 0 || (index === 0 && pickerSelected.size === 0);
+    return `<div class="picker-group ${open ? 'open' : ''}">
+      <button type="button" class="picker-group-header" data-action="togglePickerGroup" aria-expanded="${open}">
+        <span>${group}</span>
+        <span class="picker-group-meta">
+          <span class="picker-count ${selected ? '' : 'zero'}" data-group-count="${group}">${selected}</span>
+          ${icon('chevron', 'picker-chevron')}
+        </span>
+      </button>
       <div class="picker-group-body">
-        <div class="picker-ex-list">
-          ${exs.map(ex => `
-            <div class="picker-ex-item ${pickerSelected.has(ex.id)?'selected':''}" id="pei-${ex.id}" onclick="togglePickerEx('${ex.id}','${g.key}')">
-              <div class="picker-ex-thumb">
-                <img src="${imgSrc(ex.img)}" alt="" onerror="if(this.src.endsWith('.gif')){this.src=this.src.replace('.gif','.svg')}else{this.style.display='none';this.nextElementSibling.style.display='flex'}">
-                <div class="picker-ex-thumb-fallback" style="display:none">${ex.icon}</div>
-              </div>
-              <div class="picker-ex-info"><h6>${ex.name}</h6><p>${ex.sets} • ${ex.muscle}</p></div>
-              <div class="picker-ex-check">${pickerSelected.has(ex.id)?'✓':''}</div>
-            </div>`).join('')}
-        </div>
-      </div>`;
-    picker.appendChild(group);
-  });
+        ${exercises.map(ex => {
+          const isSelected = pickerSelected.has(ex.id);
+          return `<button type="button" class="picker-item ${isSelected ? 'selected' : ''}" data-action="togglePickerEx" data-eid="${ex.id}" data-group="${group}" aria-pressed="${isSelected}">
+            ${makeThumb(ex)}
+            <span class="ex-info"><strong>${escapeHtml(ex.name)}</strong><small>${escapeHtml(ex.sets)} · ${escapeHtml(ex.muscle)}</small></span>
+            <span class="picker-check">${icon('check')}</span>
+          </button>`;
+        }).join('')}
+      </div>
+    </div>`;
+  }).join('');
   updatePickerSummary();
 }
 
-function togglePickerGroup(key){ document.getElementById('pg-' + key).classList.toggle('open'); }
+ACTIONS.togglePickerGroup = (el) => {
+  const open = el.parentElement.classList.toggle('open');
+  el.setAttribute('aria-expanded', open);
+};
 
-function togglePickerEx(eid, groupKey){
-  if(pickerSelected.has(eid)) pickerSelected.delete(eid); else pickerSelected.add(eid);
-  const item   = document.getElementById('pei-' + eid);
-  const isSel  = pickerSelected.has(eid);
-  item.classList.toggle('selected', isSel);
-  item.querySelector('.picker-ex-check').textContent = isSel ? '✓' : '';
-  const exs      = EXERCISES_DB.filter(e => pickerCategoryOf(e) === groupKey);
-  const selCount = exs.filter(e => pickerSelected.has(e.id)).length;
-  const countEl  = document.getElementById('pgc-' + groupKey);
-  countEl.textContent = selCount;
-  countEl.classList.toggle('zero', selCount === 0);
+ACTIONS.togglePickerEx = (el) => {
+  const { eid, group } = el.dataset;
+  if(pickerSelected.has(eid)) pickerSelected.delete(eid);
+  else pickerSelected.add(eid);
+  const isSelected = pickerSelected.has(eid);
+  el.classList.toggle('selected', isSelected);
+  el.setAttribute('aria-pressed', isSelected);
+  const count = EXERCISES_DB.filter(e => pickerCategoryOf(e) === group && pickerSelected.has(e.id)).length;
+  const badge = document.querySelector(`[data-group-count="${group}"]`);
+  badge.textContent = count;
+  badge.classList.toggle('zero', count === 0);
   updatePickerSummary();
-}
+};
 
 function updatePickerSummary(){
   const n = pickerSelected.size;
-  document.getElementById('picker-summary').innerHTML = n === 0
+  document.getElementById('picker-summary').textContent = n === 0
     ? 'Nenhum exercício selecionado'
-    : `<strong>${n}</strong> exercício${n>1?'s':''} selecionado${n>1?'s':''}`;
+    : `${n} ${plural(n, 'exercício selecionado', 'exercícios selecionados')}`;
 }
 
-function saveWorkout(){
-  const name     = document.getElementById('new-workout-name').value.trim();
-  const day      = parseInt(document.getElementById('new-workout-day').value);
-  const selected = [...pickerSelected];
-  if(!name){ showToast('⚠️ Dê um nome ao treino'); return; }
-  if(!selected.length){ showToast('⚠️ Selecione ao menos 1 exercício'); return; }
-  state.workouts = state.workouts.filter(w => w.day !== day);
-  state.workouts.push({ day, name, exercises: selected });
+ACTIONS.saveWorkout = async () => {
+  const nameInput = document.getElementById('new-workout-name');
+  const name      = nameInput.value.trim();
+  const day       = Number(document.getElementById('new-workout-day').value);
+  const exercises = [...pickerSelected];
+  if(!name){ showToast('Dê um nome ao treino', 'error'); nameInput.focus(); return; }
+  if(!exercises.length){ showToast('Selecione ao menos 1 exercício', 'error'); return; }
+
+  const conflict = state.workouts.find(w => w.day === day && w.day !== editingDay);
+  if(conflict){
+    const replace = await confirmDialog({
+      title: 'Substituir treino?',
+      message: `${WEEKDAY_LONG[day]} já tem o treino "${conflict.name}". Ele será substituído.`,
+      confirmLabel: 'Substituir',
+      danger: true
+    });
+    if(!replace) return;
+  }
+
+  state.workouts = state.workouts.filter(w => w.day !== day && w.day !== editingDay);
+  state.workouts.push({ day, name, exercises });
   save();
-  document.getElementById('add-modal').classList.remove('open');
-  initPlanner(); initHome();
-  showToast('✅ Treino salvo!');
-}
+  plannerDay = day;
+  closeModal('add-modal');
+  initPlanner();
+  initHome();
+  showToast('Treino salvo');
+};
 
-function deleteWorkout(day){
-  state.workouts = state.workouts.filter(w => w.day !== day);
-  save(); renderPlanContent(); initHome();
-  showToast('🗑️ Treino excluído');
-}
+ACTIONS.deleteWorkout = async () => {
+  const workout = state.workouts.find(w => w.day === plannerDay);
+  if(!workout) return;
+  const confirmed = await confirmDialog({
+    title: 'Excluir treino?',
+    message: `"${workout.name}" sairá do seu plano. O histórico de cargas é mantido.`,
+    confirmLabel: 'Excluir',
+    danger: true
+  });
+  if(!confirmed) return;
+  state.workouts = state.workouts.filter(w => w.day !== plannerDay);
+  save();
+  renderPlanContent();
+  initHome();
+  showToast('Treino excluído');
+};

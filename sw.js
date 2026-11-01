@@ -1,12 +1,14 @@
-const CACHE_NAME = 'gymflow-v3';
+const CACHE_NAME = 'gymflow-v4';
+const FIREBASE_VERSION = '9.23.0';
 const APP_SHELL = [
   './index.html',
   './manifest.json',
   './css/styles.css',
   './css/login.css',
   './js/firebase-config.js',
+  './js/utils.js',
   './js/data.js',
-  './js/background.js',
+  './js/storage.js',
   './js/app.js',
   './js/home.js',
   './js/planner.js',
@@ -15,14 +17,18 @@ const APP_SHELL = [
   './js/progress.js',
   './js/settings.js',
   './js/auth.js',
+  './js/background.js',
   './img/bg-eclipse.webp',
   './img/watercolor-login.svg',
   './img/watercolor-blob-a.svg',
   './img/watercolor-blob-b.svg',
   './img/watercolor-blob-c.svg',
   './img/icons/icon-192.png',
-  './img/icons/icon-512.png'
+  './img/icons/icon-512.png',
+  ...['app', 'firestore', 'auth'].map(m =>
+    `https://www.gstatic.com/firebasejs/${FIREBASE_VERSION}/firebase-${m}-compat.js`)
 ];
+const CACHEABLE_ORIGINS = [self.location.origin, 'https://www.gstatic.com', 'https://fonts.googleapis.com', 'https://fonts.gstatic.com'];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
@@ -40,23 +46,33 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Cache-first for same-origin GET requests (app shell, exercise gifs/svgs).
-// Firebase/API calls and cross-origin requests go straight to the network.
+async function fetchAndCache(request){
+  const response = await fetch(request);
+  if(response.ok){
+    const cache = await caches.open(CACHE_NAME);
+    cache.put(request, response.clone());
+  }
+  return response;
+}
+
+// Páginas: rede primeiro, cache sem internet. Demais arquivos: cache primeiro.
+// Chamadas ao Firestore e ao Auth não passam por aqui e nunca são guardadas.
 self.addEventListener('fetch', (event) => {
   const { request } = event;
-  if (request.method !== 'GET') return;
-  if (new URL(request.url).origin !== self.location.origin) return;
+  if(request.method !== 'GET') return;
+  if(!CACHEABLE_ORIGINS.includes(new URL(request.url).origin)) return;
 
-  event.respondWith(
-    caches.match(request).then((cached) => {
-      if (cached) return cached;
-      return fetch(request).then((response) => {
-        if (response.ok) {
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
-        }
-        return response;
-      }).catch(() => cached);
-    })
+  if(request.mode === 'navigate'){
+    event.respondWith(fetchAndCache(request).catch(() => caches.match('./index.html')));
+    return;
+  }
+  event.respondWith(caches.match(request).then((cached) => cached || fetchAndCache(request)));
+});
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  event.waitUntil(
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windows) =>
+      windows.length ? windows[0].focus() : self.clients.openWindow('./index.html'))
   );
 });

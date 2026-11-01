@@ -5,3 +5,10 @@ config.txt
 .DS_Store
 Thumbs.db
 .firebase/
+.agents/
+.claude/
+skills-lock.json
+.vercel/
+
+.vercel
+.env*
